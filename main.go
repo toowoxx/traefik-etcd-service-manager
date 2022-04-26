@@ -8,6 +8,8 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
+const traefikPrefix = "traefik."
+
 func dockerLabelToEtcdKey(key string) string {
 	return strings.ReplaceAll(key, ".", "/")
 }
@@ -32,7 +34,7 @@ func main() {
 			case UpdatedLabels:
 				log.Println(oldContainer.ID, "| updating labels")
 				for key := range oldContainer.Labels {
-					if strings.HasPrefix(key, "traefik.") {
+					if strings.HasPrefix(key, traefikPrefix) {
 						log.Println(oldContainer.ID, "| removing label", key)
 						if err := etcdManager.Remove(dockerLabelToEtcdKey(key)); err != nil {
 							log.Println("Error while removing key", key, ":", err.Error())
@@ -46,7 +48,7 @@ func main() {
 				}
 				log.Println(container.ID, "| adding labels")
 				for key, value := range container.Labels {
-					if strings.HasPrefix(key, "traefik.") {
+					if strings.HasPrefix(key, traefikPrefix) {
 						log.Println(container.ID, "| adding label", key)
 						if err := etcdManager.Put(dockerLabelToEtcdKey(key), value); err != nil {
 							log.Println("Error while putting key", key, ":", err.Error())
@@ -59,7 +61,7 @@ func main() {
 				}
 				log.Println(container.ID, "| removing labels")
 				for key := range container.Labels {
-					if strings.HasPrefix(key, "traefik.") {
+					if strings.HasPrefix(key, traefikPrefix) {
 						log.Println(container.ID, "| removing label", key)
 						if err := etcdManager.Remove(dockerLabelToEtcdKey(key)); err != nil {
 							log.Println("Error while removing key", key, ":", err.Error())
