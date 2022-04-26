@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -16,8 +18,13 @@ type EtcdManager struct {
 }
 
 func newEtcdManager() (*EtcdManager, error) {
+	endpoints := []string{"localhost:2379"}
+	if value, exists := os.LookupEnv("ETCD_ENDPOINTS"); exists {
+		endpoints = strings.Split(value, ",")
+	}
+
 	client, err := etcd.New(etcd.Config{
-		Endpoints:   []string{"localhost:2379"},
+		Endpoints:   endpoints,
 		DialTimeout: 30 * time.Second,
 	})
 	if err != nil {
